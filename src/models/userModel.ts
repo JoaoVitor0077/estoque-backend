@@ -1,7 +1,8 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import {db} from "../database/connection";
 
-export const createUser = ( 
+  //Função para criar um novo usuário
+  export const createUser = ( 
     nome: string, 
     email: string, 
     senha: string, 
@@ -12,6 +13,7 @@ export const createUser = (
     });
   };
 
+  //Função para encontrar o usuário pelo email
   export const findUserByEmail = (
     email: string,
     callback: (err: Error | null, results?: RowDataPacket[]) => void) => {

@@ -19,7 +19,7 @@ export const criarUsuario = async (req: Request, res: Response) => {
 
     // Criptografando a senha
     bcrypt.hash(senha, 10, (err, hash) => {
-      if (err) return res.status(500).send("Erro ao criptografar senha.");
+      if (err) return res.status(500).json("Erro ao criptografar senha.");
 
       // Salvando o novo usuário
       db.query(
@@ -38,6 +38,7 @@ export const criarUsuario = async (req: Request, res: Response) => {
 export const loginUsuario = (req: Request, res: Response) => {
   const { email, senha } = req.body;
 
+  //Verifica se o usuário existe
   findUserByEmail(email, (err: any, results: any) => {
     if (results.length === 0) {
       return res.status(404).json({ message: "Usuário não encontrado." });
@@ -50,8 +51,11 @@ export const loginUsuario = (req: Request, res: Response) => {
       }
 
       // Gerando o token de autenticação
-      const token = jwt.sign({ id: results[0].id }, process.env.JWT_SECRET || "default_secret", { expiresIn: "1h" });
+      const token = jwt.sign({ id: results[0].id }, process.env.JWT_SECRET || "default_secret", 
+        { expiresIn: "1h" });
+
       return res.status(200).json({ token });
+      
     });
   });
 };

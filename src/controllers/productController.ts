@@ -1,49 +1,68 @@
 import { Request, Response } from "express";
-import { db } from "../database/connection";
+import { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct } from "../models/productModel";
 
-// Função para listar todos os produtos
-export const listarProdutos = (req: Request, res: Response) => {
-  db.query("SELECT * FROM produtos", (err, result) => {
-    if (err) return res.status(500).send("Erro no servidor.");
-    return res.status(200).json(result);
+// Criar produto
+export const addProduct = (req: Request, res: Response) => {
+  const { nome, descricao, valor, quantidade } = req.body;
+  const imagem = req.file?.buffer ?? Buffer.alloc(0); // Assumindo que você usará multer para upload de imagens
+
+  createProduct(
+    nome, 
+    descricao, 
+    imagem, 
+    valor, 
+    quantidade, 
+    (err: any, results: any) => {
+    if (err) return res.status(500).json({ message: "Erro ao criar produto." });
+    return res.status(201).json({ message: "Produto criado com sucesso!" });
   });
 };
 
-// Função para criar um novo produto
-export const criarProduto = (req: Request, res: Response) => {
-  const { nome, descricao, valor, quantidade, imagem } = req.body;
-
-  db.query(
-    "INSERT INTO produtos (nome, descricao, valor, quantidade, imagem) VALUES (?, ?, ?, ?, ?)",
-    [nome, descricao, valor, quantidade, imagem],
-    (err) => {
-      if (err) return res.status(500).send("Erro ao criar produto.");
-      return res.status(201).send("Produto criado com sucesso.");
-    }
-  );
+// Listar todos os produtos
+export const getProducts = (req: Request, res: Response) => {
+  getAllProducts((err: any, results: any) => {
+    if (err) return res.status(500).json({ message: "Erro ao obter produtos." });
+    return res.status(200).json(results);
+  });
 };
 
-// Função para editar um produto
-export const editarProduto = (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { nome, descricao, valor, quantidade, imagem } = req.body;
-
-  db.query(
-    "UPDATE produtos SET nome = ?, descricao = ?, valor = ?, quantidade = ?, imagem = ? WHERE id = ?",
-    [nome, descricao, valor, quantidade, imagem, id],
-    (err) => {
-      if (err) return res.status(500).send("Erro ao editar produto.");
-      return res.status(200).send("Produto editado com sucesso.");
+// Buscar produto por ID
+export const getProduct = (req: Request, res: Response) => {
+  const id  = parseInt(req.params.id, 10);
+  
+  getProductById(id, (err: any, results: any) => {
+    if (err || results.length === 0) {
+      return res.status(404).json({ message: "Produto não encontrado." });
     }
-  );
+    return res.status(200).json(results[0]);
+  });
 };
 
-// Função para remover um produto
-export const removerProduto = (req: Request, res: Response) => {
-  const { id } = req.params;
+// Atualizar produto
+export const updateProductDetails = (req: Request, res: Response) => {
+  const id  = parseInt(req.params.id, 10);
+  const { nome, descricao, valor, quantidade } = req.body;
+  const imagem = req.file?.buffer ?? Buffer.alloc(0);
 
-  db.query("DELETE FROM produtos WHERE id = ?", [id], (err) => {
-    if (err) return res.status(500).send("Erro ao remover produto.");
-    return res.status(200).send("Produto removido com sucesso.");
+  updateProduct(
+    id, 
+    nome, 
+    descricao, 
+    imagem, 
+    valor, 
+    quantidade, 
+    (err: any, results: any) => {
+    if (err) return res.status(500).json({ message: "Erro ao atualizar produto." });
+    return res.status(200).json({ message: "Produto atualizado com sucesso!" });
+  });
+};
+
+// Deletar produto
+export const removeProduct = (req: Request, res: Response) => {
+  const id  = parseInt(req.params.id, 10);
+
+  deleteProduct(id, (err: any, results: any) => {
+    if (err) return res.status(500).json({ message: "Erro ao deletar produto." });
+    return res.status(200).json({ message: "Produto deletado com sucesso!" });
   });
 };
