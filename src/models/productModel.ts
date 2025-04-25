@@ -33,20 +33,23 @@ export const getProductById = (
     })
 };
 
-// Função para atualizar um produto
+// Função para atualizar produtos
 export const updateProduct = (
-    id: number,
     nome: string,
     descricao: string,
     imagem: Buffer,
     valor: number,
     quantidade: number,
-    callback: (err: QueryError | null, result?: RowDataPacket[]) => void) => {
-        const query = "UPDATE produtos SET nome = ?, descricao = ?, imagem = ?, valor = ?,  quantidade = ? WHERE id = ?";
-        db.query(query, [id, nome, descricao, imagem, valor, quantidade], (err, result) => {
-            callback(err, result as RowDataPacket[])
-        })
-    };
+    id: number,
+    callback: (err: QueryError | null, result?: RowDataPacket[]) => void
+  ) => {
+    const query =
+      "UPDATE produtos SET nome = ?, descricao = ?, imagem = ?, valor = ?, quantidade = ? WHERE id = ?";
+      
+    db.query(query, [nome, descricao, imagem, valor, quantidade, id], (err, result) => {
+      callback(err, result as RowDataPacket[]);
+    });
+  };
 
 // Função para deletar produtos
 export const deleteProduct = (
